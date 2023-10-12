@@ -15,7 +15,7 @@ jobs:
       - name: Get previous commit SHA
         id: previous_commit_sha
         run: |
-          PREV_COMMIT_SHA=$(git rev-parse HEAD^)
+          PREV_COMMIT_SHA=$(git rev-parse HEAD~1)
           echo "::set-output name=prev_sha::$PREV_COMMIT_SHA"
 
       - name: Check for changes in microservice1

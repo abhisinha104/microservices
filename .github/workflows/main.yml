@@ -6,62 +6,52 @@ on:
       - main
 
 jobs:
-  build-and-deploy-microservice1:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    # Set job outputs to values from filter step
+    outputs:
+      microservice1: ${{ steps.filter.outputs.microservice1 }}
+      microservice2: ${{ steps.filter.outputs.microservice2 }}
+    steps:
+
+    - uses: actions/checkout@v3
+    # For pull requests it's not necessary to checkout the code
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          microservice1:
+            - 'microservice1/**'
+          microservice2:
+            - 'microservice2/**'
+
+  # JOB to build and test java code
+  microservice1:
+    needs: changes
+    if: ${{ needs.changes.outputs.microservice1 == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: 'recursive'
-
-      - name: Check for changes in folders
-        id: check_changes
-        run: |
-          # Get the list of changed folders using Git diff
-          CHANGED_FOLDERS=$(git diff --name-only HEAD HEAD~ | xargs -I {} dirname {} | sort -u)
-          # Output the list of changed folders
-          echo "Changed folders:"
-          for folder in $CHANGED_FOLDERS; do
-            echo "- $folder"
-          done
-          echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITHUB_ENV  # Store CHANGED_FOLDERS as an environment variable
-
-      - name: Build and push Docker image for microservice1
-        if: contains(env.CHANGED_FOLDERS, 'microservice1') &&
-            !contains(env.CHANGED_FOLDERS, 'microservice2')
+      - uses: actions/checkout@v3
+      - name: java tests
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
           docker build -t dev-microservices-microservice1:$TAG ./microservice1
 
-  build-and-deploy-microservice2:
+  # JOB to build and test python code
+  microservice2:
+    needs: changes
+    if: ${{ needs.changes.outputs.microservice2 == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: 'recursive'
-
-      - name: Check for changes in folders
-        id: check_changes
-        run: |
-          # Get the list of changed folders using Git diff
-          CHANGED_FOLDERS=$(git diff --name-only HEAD HEAD~ | xargs -I {} dirname {} | sort -u)
-          # Output the list of changed folders
-          echo "Changed folders:"
-          for folder in $CHANGED_FOLDERS; do
-            echo "- $folder"
-          done
-          echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITHUB_ENV  # Store CHANGED_FOLDERS as an environment variable
-
-      - name: Build and push Docker image for microservice2
-        if: contains(env.CHANGED_FOLDERS, 'microservice2') &&
-            !contains(env.CHANGED_FOLDERS, 'microservice1')
+      - uses: actions/checkout@v3
+      - name: pyth tests
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-microservice2:$TAG ./microservice2
+          docker build -t dev-microservices-microservice1:$TAG ./microservice2
+

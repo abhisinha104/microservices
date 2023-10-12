@@ -12,10 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Get previous commit SHA
+        id: previous_commit_sha
+        run: |
+          PREV_COMMIT_SHA=$(git rev-parse HEAD^)
+          echo "::set-output name=prev_sha::$PREV_COMMIT_SHA"
+
       - name: Check for changes in microservice1
         id: check_changes_microservice1
         run: |
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          CHANGED_FILES=$(git diff --name-only ${{ steps.previous_commit_sha.outputs.prev_sha }} HEAD)
           echo "::set-output name=files::$CHANGED_FILES"
 
       - name: Build and push Docker image for microservice1
@@ -26,22 +32,4 @@ jobs:
           echo Building the Docker image with tag $TAG...
           docker build -t dev-microservices-microservice1:$TAG ./microservice1
 
-  build-and-deploy-microservice2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check for changes in microservice2
-        id: check_changes_microservice2
-        run: |
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
-          echo "::set-output name=files::$CHANGED_FILES"
-
-      - name: Build and push Docker image for microservice2
-        if: contains(steps.check_changes_microservice2.outputs.files, 'microservice2/')
-        run: |
-          echo Build started on $(date)
-          TAG="image_$(date +'%Y%m%d_%H%M%S')"
-          echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-microservice2:$TAG ./microservice2
+# Add a similar job for microservice2

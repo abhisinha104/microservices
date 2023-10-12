@@ -12,20 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get previous commit SHA
-        id: previous_commit_sha
+      - name: Check for changes in folders
         run: |
-          PREV_COMMIT_SHA=$(git rev-parse HEAD~1)
-          echo "::set-output name=prev_sha::$PREV_COMMIT_SHA"
+          # Get the list of changed folders using Git diff
+          CHANGED_FOLDERS=$(git diff --name-only HEAD HEAD~ | xargs -I {} dirname {} | sort -u)
 
-      - name: Check for changes in microservice1
-        id: check_changes_microservice1
-        run: |
-          CHANGED_FILES=$(git diff --name-only ${{ steps.previous_commit_sha.outputs.prev_sha }} HEAD)
-          echo "::set-output name=files::$CHANGED_FILES"
-
+          # Output the list of changed folders
+          echo "Changed folders:"
+          for folder in $CHANGED_FOLDERS; do
+            echo "- $folder"
+          done
+          
       - name: Build and push Docker image for microservice1
-        if: contains(steps.check_changes_microservice1.outputs.files, 'microservice1/')
+        if: contains('${{ steps.check_changes.outputs.CHANGED_FOLDERS }}', 'microservice1')
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"

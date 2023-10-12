@@ -25,12 +25,12 @@ jobs:
           for folder in $CHANGED_FOLDERS; do
             echo "- $folder"
           done
+          echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITHUB_ENV  # Store CHANGED_FOLDERS as an environment variable
 
       - name: Build and push Docker image for microservice1
-        if: contains('${{ steps.check_changes.outputs.CHANGED_FOLDERS }}', 'microservice1') &&
-            !contains('${{ steps.check_changes.outputs.CHANGED_FOLDERS }}', 'microservice2')
+        if: contains(env.CHANGED_FOLDERS, 'microservice1') &&
+            !contains(env.CHANGED_FOLDERS, 'microservice2')
         run: |
-          echo "$CHANGED_FOLDERS"
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...

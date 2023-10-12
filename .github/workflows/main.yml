@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-deploy-ServiceRegistry:
-    if: startsWith(github.event_path, 'microservice1/')  # This condition will run if any file within 'microservice1' directory is changed
+    if: contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/')
     runs-on: ubuntu-latest
 
     steps:

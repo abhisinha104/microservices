@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'microservice1/**'
-      - 'microservice2/**'  # Watch for changes in the microservice2 folder and its subdirectories
+      - 'microservice2/**'
 
 jobs:
   build-and-deploy-microservice1:
@@ -15,22 +15,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check for changes in microservice1
+        id: check_changes_microservice1
+        run: echo "Changes:${{ steps.check_changes_microservice2.outputs.files }}"
+        
       - name: Build and push Docker image for microservice1
+        if: contains(steps.check_changes_microservice1.outputs.files, 'microservice1/')
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices:$TAG ./microservice1
-
+          docker build -t dev-microservices-microservice1:$TAG ./microservice1
+          
   build-and-deploy-microservice2:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check for changes in microservice2
+        id: check_changes_microservice2
+        run: echo "Changes:${{ steps.check_changes_microservice2.outputs.files }}"
+        
       - name: Build and push Docker image for microservice2
+        if: contains(steps.check_changes_microservice2.outputs.files, 'microservice2/')
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices:$TAG ./microservice2
+          docker build -t dev-microservices-microservice2:$TAG ./microservice2

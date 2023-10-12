@@ -3,7 +3,7 @@ name: My GitHub Actions Workflow
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   # JOB to run change detection
@@ -26,54 +26,54 @@ jobs:
           microservice2:
             - 'microservice2/**'
 
-  # JOB to build and test java code
-  microservice1:
+  # JOB to check the changes in ServiceRegistry code
+  ServiceRegistry:
     needs: changes
-    if: ${{ needs.changes.outputs.microservice1 == 'true' }}
+    if: ${{ needs.changes.outputs.ServiceRegistry == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up AWS CLI for microservice1
+      - name: Set up AWS CLI for ServiceRegistry
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Login to ECR for microservice1
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 391458372410.dkr.ecr.us-east-1.amazonaws.com
+      - name: Login to ECR for ServiceRegistry
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 466471976337.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: java tests
+      - name: Build and Push ServiceRegistry 
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-microservice1:$TAG ./microservice1
-          docker tag dev-microservices-microservice1:$TAG 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice1:$TAG
-          docker push 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice1:$TAG
+          docker build -t dev-microservices-service-registry:$TAG ./ServiceRegistry
+          docker tag dev-microservices-service-registry:$TAG 466471976337.dkr.ecr.us-east-1.amazonaws.com/dev-microservices-service-registry:$TAG
+          docker push 466471976337.dkr.ecr.us-east-1.amazonaws.com/dev-microservices-service-registry:$TAG
 
-  # JOB to build and test python code
-  microservice2:
+  # JOB to check the changes in MainService code
+  MainService:
     needs: changes
-    if: ${{ needs.changes.outputs.microservice2 == 'true' }}
+    if: ${{ needs.changes.outputs.MainService == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up AWS CLI for microservice2
+      - name: Set up AWS CLI for MainService
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Login to ECR for microservice2
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 391458372410.dkr.ecr.us-east-1.amazonaws.com
+      - name: Login to ECR for MainService
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 466471976337.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: pyth tests
+      - name: Build and Push MainService
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-microservice2:$TAG ./microservice2
-          docker tag dev-microservices-microservice2:$TAG 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG
-          docker push 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG
+          docker build -t dev-microservices-main-service:$TAG ./MainService
+          docker tag dev-microservices-main-service:$TAG 466471976337.dkr.ecr.us-east-1.amazonaws.com
+          docker push 466471976337.dkr.ecr.us-east-1.amazonaws.com/dev-microservices-main-service:$TAG

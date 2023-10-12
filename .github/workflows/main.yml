@@ -20,7 +20,7 @@ jobs:
 
       - name: Check for changes in microservice1
         id: check_changes_microservice1
-        run: echo "Changes: ${{ steps.check_changes_microservice1.outputs.files }}"
+        run: echo "Changes:${{ steps.check_changes_microservice1.outputs.files }}"
 
       - name: Build and push Docker image for microservice1
         if: contains(steps.check_changes_microservice1.outputs.files, 'microservice1/')
@@ -41,7 +41,7 @@ jobs:
 
       - name: Check for changes in microservice2
         id: check_changes_microservice2
-        run: echo "Changes: ${{ steps.check_changes_microservice2.outputs.files }}"
+        run: echo "Changes:${{ steps.check_changes_microservice2.outputs.files }}"
 
       - name: Build and push Docker image for microservice2
         if: contains(steps.check_changes_microservice2.outputs.files, 'microservice2/')

@@ -4,47 +4,37 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'microservice1/**'
-      - 'microservice2/**'
 
 jobs:
-  build-and-deploy-microservice1:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Check for changes in microservice1
-        id: check_changes_microservice1
+      - name: Check for changes
+        id: check_changes
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
-          echo "::set-output name=files::$(cat changed_files.txt)"
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "::set-output name=changes::${CHANGED_FILES}"
 
-      - name: Build and push Docker image for microservice1
-        if: contains(steps.check_changes_microservice1.outputs.files, 'microservice1/')
+      - name: Build and deploy
         run: |
-          echo Build started on $(date)
-          TAG="image_$(date +'%Y%m%d_%H%M%S')"
-          echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-microservice1:$TAG ./microservice1
+          CHANGED_FILES="${{ steps.check_changes.outputs.changes }}"
           
-  build-and-deploy-microservice2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+          if [[ $CHANGED_FILES == *'microservice1/'* ]]; then
+            echo "Changes detected in microservice1, building and deploying..."
+            TAG="image_$(date +'%Y%m%d_%H%M%S')"
+            echo Building the Docker image with tag $TAG...
+            docker build -t dev-microservices-microservice1:$TAG ./microservice1
+            # Add your deployment steps for microservice1 here
+          fi
 
-      - name: Check for changes in microservice2
-        id: check_changes_microservice2
-        run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
-          echo "::set-output name=files::$(cat changed_files.txt)"
-
-      - name: Build and push Docker image for microservice2
-        if: contains(steps.check_changes_microservice2.outputs.files, 'microservice2/')
-        run: |
-          echo Build started on $(date)
-          TAG="image_$(date +'%Y%m%d_%H%M%S')"
-          echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-microservice2:$TAG ./microservice2
+          if [[ $CHANGED_FILES == *'microservice2/'* ]]; then
+            echo "Changes detected in microservice2, building and deploying..."
+            TAG="image_$(date +'%Y%m%d_%H%M%S')"
+            echo Building the Docker image with tag $TAG...
+            docker build -t dev-microservices-microservice2:$TAG ./microservice2
+            # Add your deployment steps for microservice2 here
+          fi

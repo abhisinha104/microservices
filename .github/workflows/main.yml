@@ -1,0 +1,79 @@
+name: My GitHub Actions Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    # Set job outputs to values from filter step
+    outputs:
+      microservice1: ${{ steps.filter.outputs.microservice1 }}
+      microservice2: ${{ steps.filter.outputs.microservice2 }}
+    steps:
+    - uses: actions/checkout@v3
+    # For pull requests, it's not necessary to checkout the code
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          microservice1:
+            - 'microservice1/**'
+          microservice2:
+            - 'microservice2/**'
+
+  # JOB to build and test java code
+  microservice1:
+    needs: changes
+    if: ${{ needs.changes.outputs.microservice1 == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up AWS CLI for microservice1
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR for microservice1
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 391458372410.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: java tests
+        run: |
+          echo Build started on $(date)
+          TAG="image_$(date +'%Y%m%d_%H%M%S')"
+          echo Building the Docker image with tag $TAG...
+          docker build -t dev-microservices-microservice1:$TAG ./microservice1
+          docker tag dev-microservices-microservice1:$TAG 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice1:$TAG
+          docker push 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice1:$TAG
+
+  # JOB to build and test python code
+  microservice2:
+    needs: changes
+    if: ${{ needs.changes.outputs.microservice2 == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up AWS CLI for microservice2
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR for microservice2
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 391458372410.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: pyth tests
+        run: |
+          echo Build started on $(date)
+          TAG="image_$(date +'%Y%m%d_%H%M%S')"
+          echo Building the Docker image with tag $TAG...
+          docker build -t dev-microservices-microservice2:$TAG ./microservice2
+          docker tag dev-microservices-microservice2:$TAG 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG
+          docker push 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG

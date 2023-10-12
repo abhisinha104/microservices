@@ -1,0 +1,62 @@
+pr:
+ autoCancel: true
+ 
+trigger:
+  branches:
+    include:
+    - dev
+  paths:
+    include:
+    - '*'
+  #  exclude:
+   # - DevOps-pipeline.yaml.yaml
+    #- templates/*
+
+parameters:
+- name: FOLDER_NAMES
+  displayName: Folder Parameters
+  type: string
+  #default: demo
+  values:
+  - Dockerproject
+  - test
+- name: conregi8171
+  displayName: ACR Name
+  default: 'haridev-rg'
+- name: connection1
+  displayName: Azure Srevice connection
+  default: Visual Studio Enterprise Subscription – MPN (59109469-bf9b-420f-9d78-0a4a485aac29)
+- name: haridev-rg
+  displayName: Azure Resource Group
+  default: reddy
+
+resources:
+  repositories:
+    - repository: demo
+      type: git
+      name: /demo
+      ref: master
+      path: Dockerproject
+    - repository: demo
+      type: git
+      name: /demo
+      ref: dev
+      path: test
+   # - repository: Test_Repo3
+    #  type: git
+    #  name: test-login-page
+    #  ref: dev
+     # path: Test-Folder3
+
+stages:
+- stage :
+  #jobs:
+  #- job: Linux
+   # pool:
+    #  vmImage: 'ubuntu-latest'
+    steps:
+
+    - ${{ if eq(parameters.FOLDER_NAMES, 'Dockerproject') }}:
+      - template: template.yml
+        parameters:
+          REPO_NAME: self

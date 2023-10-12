@@ -1,0 +1,20 @@
+
+# pool:
+#   vmImage: ubuntu-latest
+
+steps:
+- task: Docker@0
+  displayName: 'Build a container image'
+  inputs:
+    azureSubscription: 'Visual Studio Enterprise Subscription – MPN (59109469-bf9b-420f-9d78-0a4a485aac29)'
+    azureContainerRegistry: '{"loginServer":"conregi8171.azurecr.io", "id" : "/subscriptions/59109469-bf9b-420f-9d78-0a4a485aac29/resourceGroups/haridev-rg/providers/Microsoft.ContainerRegistry/registries/conregi8171"}'
+    dockerFile: $(folder)/Dockerfile
+    imageName: '$(folder):$(Build.BuildId)'
+
+- task: Docker@0
+  displayName: 'Push a container image'
+  inputs:
+    azureSubscription: 'Visual Studio Enterprise Subscription – MPN (59109469-bf9b-420f-9d78-0a4a485aac29)'
+    azureContainerRegistry: '{"loginServer":"conregi8171.azurecr.io", "id" : "/subscriptions/59109469-bf9b-420f-9d78-0a4a485aac29/resourceGroups/haridev-rg/providers/Microsoft.ContainerRegistry/registries/conregi8171"}'
+    action: 'Push an image'
+    imageName: '$(folder):$(Build.BuildId)'

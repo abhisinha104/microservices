@@ -30,7 +30,7 @@ jobs:
         if: contains('${{ steps.check_changes.outputs.CHANGED_FOLDERS }}', 'microservice1') &&
             !contains('${{ steps.check_changes.outputs.CHANGED_FOLDERS }}', 'microservice2')
         run: |
-          echo "$folder"
+          echo "$CHANGED_FOLDERS"
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...

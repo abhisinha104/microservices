@@ -15,7 +15,7 @@ jobs:
       - name: Check for changes in microservice1
         id: check_changes_microservice1
         run: |
-          CHANGED_FILES=$(git diff --name-only main..HEAD)
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
           echo "::set-output name=files::$CHANGED_FILES"
 
       - name: Build and push Docker image for microservice1
@@ -35,7 +35,7 @@ jobs:
       - name: Check for changes in microservice2
         id: check_changes_microservice2
         run: |
-          CHANGED_FILES=$(git diff --name-only main..HEAD)
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
           echo "::set-output name=files::$CHANGED_FILES"
 
       - name: Build and push Docker image for microservice2

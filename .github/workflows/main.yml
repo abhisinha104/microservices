@@ -11,23 +11,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: 'recursive'
 
-      - name: Check for changes in folders
+      - name: Check for changes in microservice1
+        id: check_changes_microservice1
         run: |
-          # Get the list of changed folders using Git diff
-          CHANGED_FOLDERS=$(git diff --name-only HEAD HEAD~ | xargs -I {} dirname {} | sort -u)
+          # Get the list of changed files
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
 
-          # Output the list of changed folders
-          echo "Changed folders:"
-          for folder in $CHANGED_FOLDERS; do
-            echo "- $folder"
-          done
-          
+          # Check if any file in microservice1 is changed
+          if [[ $CHANGED_FILES == *"microservice1/"* ]]; then
+            echo "Changes detected in microservice1"
+            echo ::set-output name=files::true
+          else
+            echo "No changes detected in microservice1"
+            echo ::set-output name=files::false
+          fi
+
       - name: Build and push Docker image for microservice1
-        if: contains('${{ steps.check_changes.outputs.CHANGED_FOLDERS }}', 'microservice1')
+        if: steps.check_changes_microservice1.outputs.files == 'true'
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"

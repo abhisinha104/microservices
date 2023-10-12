@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy-microservice1:
-    if: ${{ github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'microservice1/') }}
+    if: ${{ github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'microservice1/Dockerfile') }}
     runs-on: ubuntu-latest
 
     steps:

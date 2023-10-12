@@ -6,35 +6,42 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-microservice1:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Check for changes
-        id: check_changes
+      - name: Check for changes in microservice1
+        id: check_changes_microservice1
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          echo "::set-output name=changes::${CHANGED_FILES}"
+          CHANGED_FILES=$(git diff --name-only main..HEAD)
+          echo "::set-output name=files::$CHANGED_FILES"
 
-      - name: Build and deploy
+      - name: Build and push Docker image for microservice1
+        if: contains(steps.check_changes_microservice1.outputs.files, 'microservice1/')
         run: |
-          CHANGED_FILES="${{ steps.check_changes.outputs.changes }}"
-          
-          if [[ $CHANGED_FILES == *'microservice1/'* ]]; then
-            echo "Changes detected in microservice1, building and deploying..."
-            TAG="image_$(date +'%Y%m%d_%H%M%S')"
-            echo Building the Docker image with tag $TAG...
-            docker build -t dev-microservices-microservice1:$TAG ./microservice1
-            # Add your deployment steps for microservice1 here
-          fi
+          echo Build started on $(date)
+          TAG="image_$(date +'%Y%m%d_%H%M%S')"
+          echo Building the Docker image with tag $TAG...
+          docker build -t dev-microservices-microservice1:$TAG ./microservice1
 
-          if [[ $CHANGED_FILES == *'microservice2/'* ]]; then
-            echo "Changes detected in microservice2, building and deploying..."
-            TAG="image_$(date +'%Y%m%d_%H%M%S')"
-            echo Building the Docker image with tag $TAG...
-            docker build -t dev-microservices-microservice2:$TAG ./microservice2
-            # Add your deployment steps for microservice2 here
-          fi
+  build-and-deploy-microservice2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for changes in microservice2
+        id: check_changes_microservice2
+        run: |
+          CHANGED_FILES=$(git diff --name-only main..HEAD)
+          echo "::set-output name=files::$CHANGED_FILES"
+
+      - name: Build and push Docker image for microservice2
+        if: contains(steps.check_changes_microservice2.outputs.files, 'microservice2/')
+        run: |
+          echo Build started on $(date)
+          TAG="image_$(date +'%Y%m%d_%H%M%S')"
+          echo Building the Docker image with tag $TAG...
+          docker build -t dev-microservices-microservice2:$TAG ./microservice2

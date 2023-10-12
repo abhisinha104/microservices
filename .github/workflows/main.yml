@@ -1,0 +1,26 @@
+name: My GitHub Actions Workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
+
+jobs:
+  build-and-deploy-microservice1:
+    if: contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Build and push Docker image for microservice1
+        run: |
+          echo Build started on $(date)
+          TAG="image_$(date +'%Y%m%d_%H%M%S')"
+          echo Building the Docker image with tag $TAG...
+          docker build -t dev-microservices-service-registry:$TAG ./microservice1

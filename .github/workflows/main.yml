@@ -6,12 +6,6 @@ on:
       - main
     paths:
       - microservice1/**'  # Watch for changes in the ServiceRegistry folder and its subdirectories    
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch name'
-        required: true
-        default: 'main'
 
 jobs:
   build-and-deploy-ServiceRegistry:

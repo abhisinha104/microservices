@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-  paths:
-    - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
+    paths:
+      - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
 
 jobs:
   build-and-deploy-ServiceRegistry:

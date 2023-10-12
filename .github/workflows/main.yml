@@ -4,19 +4,21 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
+  paths:
+    - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
 
 jobs:
   build-and-deploy-ServiceRegistry:
-    if: contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/')
+    if: |
+      (github.event.before != '0000000000000000000000000000000000000000') &&
+      (contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/'))
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.ref }}
 
       - name: Build and push Docker image for microservice1
         run: |

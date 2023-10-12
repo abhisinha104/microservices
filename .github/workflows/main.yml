@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'microservice1/**'
+      - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
 
 jobs:
   build-and-deploy-ServiceRegistry:
-    if: github.event_path == 'microservice1/*' # Use the specific path of the file that triggers this job
+    if: startsWith(github.event_path, 'microservice1/')  # This condition will run if any file within 'microservice1' directory is changed
     runs-on: ubuntu-latest
 
     steps:
@@ -18,7 +18,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Build and push Docker image for ServiceRegistry
+      - name: Build and push Docker image for microservice1
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"

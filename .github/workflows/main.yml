@@ -9,14 +9,18 @@ on:
 
 jobs:
   build-and-deploy-microservice1:
-    if: contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/')
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/')
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
+
+      - name: Debug Information
+        run: |
+          echo "Event Path: ${{ github.event_path }}"
+          echo "Changes:"
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
 
       - name: Build and push Docker image for microservice1
         run: |

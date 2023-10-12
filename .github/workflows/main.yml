@@ -29,7 +29,7 @@ jobs:
   # JOB to check the changes in ServiceRegistry code
   ServiceRegistry:
     needs: changes
-    if: ${{ needs.changes.outputs.ServiceRegistry == 'true' }}
+    if: ${{ needs.changes.outputs.microservice1 == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -55,7 +55,7 @@ jobs:
   # JOB to check the changes in MainService code
   MainService:
     needs: changes
-    if: ${{ needs.changes.outputs.MainService == 'true' }}
+    if: ${{ needs.changes.outputs.microservice2 == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -35,3 +35,33 @@ jobs:
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
           docker build -t dev-microservices-microservice1:$TAG ./microservice1
+
+  build-and-deploy-microservice2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: Check for changes in folders
+        id: check_changes
+        run: |
+          # Get the list of changed folders using Git diff
+          CHANGED_FOLDERS=$(git diff --name-only HEAD HEAD~ | xargs -I {} dirname {} | sort -u)
+          # Output the list of changed folders
+          echo "Changed folders:"
+          for folder in $CHANGED_FOLDERS; do
+            echo "- $folder"
+          done
+          echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITHUB_ENV  # Store CHANGED_FOLDERS as an environment variable
+
+      - name: Build and push Docker image for microservice2
+        if: contains(env.CHANGED_FOLDERS, 'microservice2') &&
+            !contains(env.CHANGED_FOLDERS, 'microservice1')
+        run: |
+          echo Build started on $(date)
+          TAG="image_$(date +'%Y%m%d_%H%M%S')"
+          echo Building the Docker image with tag $TAG...
+          docker build -t dev-microservices-microservice2:$TAG ./microservice2

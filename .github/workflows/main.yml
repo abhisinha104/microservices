@@ -8,7 +8,8 @@ on:
       - 'microservice1/**'
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-ServiceRegistry:
+    if: github.event_path == 'microservice1/*' # Use the specific path of the file that triggers this job
     runs-on: ubuntu-latest
 
     steps:
@@ -17,11 +18,9 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Build and push Docker image for microservice1
-        if: ${{ github.ref == 'refs/heads/main' && 
-        working-directory: ./microservice1
+      - name: Build and push Docker image for ServiceRegistry
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-service-registry:$TAG .
+          docker build -t dev-microservices:$TAG ./microservice1

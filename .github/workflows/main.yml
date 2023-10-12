@@ -5,26 +5,23 @@ on:
     branches:
       - main
     paths:
-      - 'microservice1/**'  # Watch for changes in the microservice1 folder and its subdirectories
+      - 'microservice1/**'
 
 jobs:
-  build-and-deploy-microservice1:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.added, 'microservice1/') || contains(github.event.head_commit.modified, 'microservice1/')
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Debug Information
-        run: |
-          echo "Event Path: ${{ github.event_path }}"
-          echo "Changes:"
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Build and push Docker image for microservice1
+        if: ${{ github.ref == 'refs/heads/main' && 
+        working-directory: ./microservice1
         run: |
           echo Build started on $(date)
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
-          docker build -t dev-microservices-service-registry:$TAG ./microservice1
+          docker build -t dev-microservices-service-registry:$TAG .

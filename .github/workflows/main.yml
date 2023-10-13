@@ -73,5 +73,5 @@ jobs:
           TAG="image_$(date +'%Y%m%d_%H%M%S')"
           echo Building the Docker image with tag $TAG...
           docker build -t dev-microservices-microservice2:$TAG ./microservice2
-          docker tag 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG 
+          docker tag dev-microservices-microservice2:$TAG 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG
           docker push 391458372410.dkr.ecr.us-east-1.amazonaws.com/microservice2:$TAG
